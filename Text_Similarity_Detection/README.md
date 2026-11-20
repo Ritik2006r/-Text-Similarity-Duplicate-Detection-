@@ -1,65 +1,199 @@
-# Text Similarity and Duplicate Detection
+# 🔍 Text Similarity and Duplicate Detection
 
-A beginner-friendly Python project that classifies whether two questions are duplicates.
+A Python and Machine Learning project that compares two text questions and predicts whether they express the same meaning. The project combines **TF-IDF vectorization**, **Logistic Regression**, and **cosine similarity**, with a simple **Streamlit** web interface.
 
-## Dataset
+## 📌 Project Overview
 
-Place your Quora Question Pairs CSV at:
+Duplicate questions are common on question-answering platforms, forums, and support websites. Manually identifying them can take time and lead to repeated content.
+
+This project accepts two questions and provides:
+- A model-estimated probability that the questions are duplicates.
+- A TF-IDF cosine similarity score.
+- A simple result label: Duplicate questions, Possibly similar questions, or Different questions.
+
+> **Note:** The output is an estimate. It is not proof of plagiarism or a guarantee that two sentences have identical meanings.
+
+## ✨ Features
+
+- Compare two questions through a Streamlit interface.
+- Clean and normalize text before processing.
+- Convert text into numerical TF-IDF features.
+- Train a Logistic Regression classifier on labelled question pairs.
+- Calculate cosine similarity between the two question vectors.
+- Preview the dataset and view its duplicate-label distribution.
+- Generate evaluation metrics and a confusion-matrix image during training.
+
+## 🧰 Technologies Used
+
+- Python
+- Streamlit
+- Pandas and NumPy
+- Scikit-learn
+- SciPy
+- Matplotlib and Seaborn
+- Joblib
+
+## 📁 Project Structure
+
+```text
+Text_Similarity_Detection/
+│
+├── app.py
+├── dataset.py
+├── preprocessing.py
+├── model_training.py
+├── similarity.py
+├── eda.py
+├── requirements.txt
+├── README.md
+│
+├── dataset/
+│   └── questions.csv
+│
+├── models/
+│   └── (generated model files)
+│
+└── reports/
+    └── (generated charts and evaluation report)
+```
+
+## 📊 Dataset
+
+The project reads the CSV file from:
 
 `dataset/questions.csv`
 
-The CSV must contain these columns:
+The CSV must contain these three columns:
 
-- `question1`
-- `question2`
-- `is_duplicate` (0 = not duplicate, 1 = duplicate)
+| Column | Description |
+|---|---|
+| `question1` | First question in the pair |
+| `question2` | Second question in the pair |
+| `is_duplicate` | Target label: `1` for duplicate and `0` for not duplicate |
 
-The original Quora CSV can also contain `id`, `qid1`, and `qid2`; the project ignores those extra columns.
+Extra columns in the original Quora Question Pairs format, such as `id`, `qid1`, and `qid2`, are not required.
 
-**Important:** The included `questions.csv` contains only 12 sample rows to check that the code runs. It is not large enough for meaningful model evaluation. Replace it with a properly labelled larger dataset before drawing conclusions from accuracy or other metrics.
+**Dataset limitation:** The repository currently includes only 12 sample rows so that the project structure and pipeline can be tested. This small sample is not sufficient for reliable model evaluation or meaningful accuracy claims. For a proper experiment, replace it with a larger, correctly labelled question-pairs dataset that has examples from both classes (0 and 1).
 
-## Setup (Windows / VS Code)
+## ⚙️ How It Works
 
-Open a terminal in this project folder and run:
+1. **Dataset loading:** `dataset.py` reads the CSV, checks required columns, removes unusable rows, and validates labels.
+2. **Text preprocessing:** `preprocessing.py` converts text to lowercase, removes URLs, HTML tags and punctuation, and normalizes whitespace.
+3. **Exploratory Data Analysis:** `eda.py` prints basic dataset information and creates plots for label distribution and question word counts.
+4. **Feature extraction:** `model_training.py` fits a TF-IDF vectorizer on training questions. It uses unigrams and bigrams.
+5. **Pair feature creation:** The model receives the absolute difference and element-wise product of the two TF-IDF vectors.
+6. **Model training:** Logistic Regression is trained using a stratified train/test split.
+7. **Prediction:** `similarity.py` loads the saved model and vectorizer, predicts duplicate probability, and calculates cosine similarity.
+8. **User interface:** `app.py` displays the comparison results and dataset preview in Streamlit.
+
+## 💻 Installation and Setup
+
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/Ritik2006r/-Text-Similarity-Duplicate-Detection-.git
+```
+
+### 2. Open the project folder
+
+```bash
+cd -Text-Similarity-Duplicate-Detection-/Text_Similarity_Detection
+```
+
+### 3. Create and activate a virtual environment (Windows PowerShell)
 
 ```bash
 python -m venv .venv
-.venv\Scripts\activate
+.venv\Scripts\Activate.ps1
+```
+
+If PowerShell does not allow environment activation, you can continue using `python -m pip` without activating it.
+
+### 4. Install dependencies
+
+```bash
 python -m pip install -r requirements.txt
 ```
 
-If PowerShell blocks activation, you can run `python -m pip install -r requirements.txt` without activating the environment.
+## ▶️ Run the Project
 
-## Run in this order
+Run these commands from the `Text_Similarity_Detection` folder.
+
+### 1. Check that the dataset loads
 
 ```bash
 python dataset.py
+```
+
+### 2. Generate EDA charts
+
+```bash
 python eda.py
+```
+
+### 3. Train the machine learning model
+
+```bash
 python model_training.py
+```
+
+This creates the following files:
+
+- `models/similarity_model.pkl`
+- `models/tfidf_vectorizer.pkl`
+- `reports/confusion_matrix.png`
+- `reports/evaluation_metrics.txt`
+
+### 4. Launch the Streamlit application
+
+```bash
 python -m streamlit run app.py
 ```
 
-- `dataset.py`: loads and validates the CSV.
-- `eda.py`: creates charts in `reports/`.
-- `model_training.py`: trains TF-IDF + Logistic Regression, evaluates it, and saves model files.
-- `app.py`: launches the Streamlit comparison interface.
+Streamlit will provide a local URL in the terminal. Open that URL in your browser.
 
-## Generated files
+## 📈 Model Evaluation
 
-`models/` is populated after model training:
-- `similarity_model.pkl`
-- `tfidf_vectorizer.pkl`
+The training script reports:
+- Accuracy
+- Precision
+- Recall
+- F1-score
+- Classification report
+- Confusion matrix
 
-`reports/` is populated after EDA and training:
-- `duplicate_distribution.png`
-- `question_word_count.png`
-- `confusion_matrix.png`
-- `evaluation_metrics.txt`
+No performance score is claimed in this README because the included dataset is only a small sample. Train and evaluate the model using a larger labelled dataset before reporting results.
 
-Generated model binaries and reports are excluded from Git using `.gitignore`. Run the training and EDA scripts locally to generate them.
+## 📂 Main Python Files
 
-## Notes
+| File | Purpose |
+|---|---|
+| `app.py` | Streamlit user interface |
+| `dataset.py` | Dataset loading and validation |
+| `preprocessing.py` | Text cleaning and normalization |
+| `eda.py` | Exploratory data analysis and plots |
+| `model_training.py` | TF-IDF feature extraction, training, and evaluation |
+| `similarity.py` | Loads the trained model and compares two questions |
+| `requirements.txt` | Python package dependencies |
 
-- Use a larger labelled dataset for meaningful metrics.
-- The train/test split is stratified and uses a fixed random seed for repeatability.
-- This is an educational baseline, not a production plagiarism detector.
+## ⚠️ Limitations
+
+- The included dataset is very small and is only intended as a pipeline sample.
+- Prediction quality depends heavily on the size, quality, and balance of the labelled training data.
+- TF-IDF is based on word and phrase occurrence; it may not understand every semantic relationship.
+- The model is an educational baseline and should not be treated as a production plagiarism or moderation system.
+
+## 🚀 Future Improvements
+
+- Train and evaluate using a larger question-pairs dataset.
+- Experiment with advanced sentence embeddings and transformer-based models.
+- Add more detailed visualizations and error analysis.
+- Deploy the Streamlit application for public access.
+
+## 👨‍💻 Author
+
+**Ritik**
+
+---
+
+If you find this project useful, feel free to star the repository.
